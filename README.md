@@ -38,14 +38,14 @@ npm install
 npm run dev                # nodemon, or `npm start` for plain node
 ```
 
-The API starts on `http://localhost:5000` and expects MongoDB at the URI in `.env`
+The API starts on `http://localhost:5000` and expects MongoDB at the URI and port in `.env`
 (a local `mongod` instance or a MongoDB Atlas connection string both work).
 
 ### 2. Frontend
 
 ```bash
 cd frontend
-cp .env.example .env      # edit VITE_API_URL if the backend runs elsewhere
+cp .env
 npm install
 npm run dev
 ```
@@ -71,6 +71,7 @@ Query params on `GET /api/tasks`:
 - `search=text` — case-insensitive partial match on title
 - `sort=-createdAt|createdAt|-priority|priority` (default `-createdAt`, newest first)
 - `page`, `limit` — optional pagination; if omitted, all matching tasks are returned
+-  load more
 
 All responses follow `{ success, data }` (or `{ success, error }` on failure).
 
