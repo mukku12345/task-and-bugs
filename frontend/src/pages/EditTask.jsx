@@ -72,7 +72,7 @@ export default function EditTask() {
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Failed to update task");
-      navigate(`/tasks/${id}`);
+      navigate(`/`);
     } catch (err) {
       setSaveError(err.message);
     } finally {
@@ -179,7 +179,7 @@ export default function EditTask() {
               <button
                 type="button"
                 className="btn btn--link"
-                onClick={() => navigate(`/tasks/${id}`)}
+                onClick={() => navigate(`/`)}
                 disabled={saving}
               >
                 Cancel
