@@ -7,8 +7,8 @@ const initialState = {
   status: "todo",
 };
 
-export default function TaskForm({ onCreate, submitting }) {
-  const [form, setForm] = useState(initialState);
+export default function TaskForm({ initialTask = initialState, onSubmit, submitting, submitLabel = "Create task" }) {
+  const [form, setForm] = useState(initialTask);
   const [errors, setErrors] = useState({});
 
   function validate(values) {
@@ -39,22 +39,20 @@ export default function TaskForm({ onCreate, submitting }) {
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
 
-    const ok = await onCreate({
+    const ok = await onSubmit({
       ...form,
       title: form.title.trim(),
       description: form.description.trim(),
     });
 
     if (ok) {
-      setForm(initialState);
+      setForm(initialTask);
       setErrors({});
     }
   }
 
   return (
     <form className="task-form" onSubmit={handleSubmit} noValidate>
-      <h2 className="task-form__heading">New task</h2>
-
       <div className="field">
         <label htmlFor="title">Title</label>
         <input
@@ -113,8 +111,8 @@ export default function TaskForm({ onCreate, submitting }) {
         </div>
       </div>
 
-      <button type="submit" className="btn btn--primary" disabled={submitting}>
-        {submitting ? "Adding..." : "Add task"}
+      <button type="submit" className="btn btn--primary task-form__submit" disabled={submitting}>
+        {submitting ? "Saving..." : submitLabel}
       </button>
     </form>
   );

@@ -6,7 +6,7 @@ const STATUS_LABELS = {
   done: "Done",
 };
 
-export default function TaskItem({ task, onStatusChange, onDelete, busy }) {
+export default function TaskItem({ task, onStatusChange, onEdit, onDelete, busy }) {
   const navigate = useNavigate();
 
   function handleRowClick() {
@@ -54,7 +54,7 @@ export default function TaskItem({ task, onStatusChange, onDelete, busy }) {
         <button
           type="button"
           className="btn btn--edit"
-          onClick={() => navigate(`/tasks/${task._id}/edit`)}
+          onClick={() => onEdit(task)}
           disabled={busy}
         >
           Edit
@@ -63,7 +63,7 @@ export default function TaskItem({ task, onStatusChange, onDelete, busy }) {
         <button
           type="button"
           className="btn btn--danger"
-          onClick={() => onDelete(task._id)}
+          onClick={() => onDelete(task)}
           disabled={busy}
         >
           Delete

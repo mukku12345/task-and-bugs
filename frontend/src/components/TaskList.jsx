@@ -8,6 +8,7 @@ export default function TaskList({
   loading,
   error,
   onStatusChange,
+  onEdit,
   onDelete,
   busyId,
 }) {
@@ -75,6 +76,7 @@ export default function TaskList({
             key={task._id}
             task={task}
             onStatusChange={onStatusChange}
+            onEdit={onEdit}
             onDelete={onDelete}
             busy={busyId === task._id}
           />

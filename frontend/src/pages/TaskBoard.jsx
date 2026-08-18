@@ -16,6 +16,8 @@ export default function TaskBoard() {
   const [busyId, setBusyId] = useState(null);
   const [filters, setFilters] = useState(initialFilters);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const loadTasks = useCallback(async (currentFilters) => {
     setLoading(true);
@@ -66,13 +68,37 @@ export default function TaskBoard() {
     }
   }
 
-  async function handleDelete(id) {
+  async function handleUpdate(updates) {
+    if (!taskToEdit) return false;
+
+    setSubmitting(true);
+    setActionError("");
+    try {
+      const res = await api.updateTask(taskToEdit._id, updates);
+      setTasks((current) =>
+        current.map((task) => (task._id === taskToEdit._id ? res.data : task))
+      );
+      setTaskToEdit(null);
+      return true;
+    } catch (err) {
+      setActionError(err.message);
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!taskToDelete) return;
+
+    const id = taskToDelete._id;
     setBusyId(id);
     setActionError("");
     const previous = tasks;
     setTasks((curr) => curr.filter((t) => t._id !== id));
     try {
       await api.deleteTask(id);
+      setTaskToDelete(null);
     } catch (err) {
       setActionError(err.message);
       setTasks(previous);
@@ -90,7 +116,7 @@ export default function TaskBoard() {
           className="btn btn--primary"
           onClick={() => setShowAddModal(true)}
         >
-          + Add task
+          <span aria-hidden="true">+</span> Add task
         </button>
       </div>
 
@@ -120,13 +146,49 @@ export default function TaskBoard() {
         loading={loading}
         error={loadError}
         onStatusChange={handleStatusChange}
-        onDelete={handleDelete}
+        onEdit={setTaskToEdit}
+        onDelete={setTaskToDelete}
         busyId={busyId}
       />
 
       {showAddModal && (
         <Modal title="New task" onClose={() => setShowAddModal(false)}>
-          <TaskForm onCreate={handleCreate} submitting={submitting} />
+          <TaskForm onSubmit={handleCreate} submitting={submitting} />
+        </Modal>
+      )}
+
+      {taskToEdit && (
+        <Modal title="Edit task" onClose={() => !submitting && setTaskToEdit(null)}>
+          <TaskForm
+            initialTask={{
+              title: taskToEdit.title,
+              description: taskToEdit.description || "",
+              priority: taskToEdit.priority,
+              status: taskToEdit.status,
+            }}
+            onSubmit={handleUpdate}
+            submitting={submitting}
+            submitLabel="Save changes"
+          />
+        </Modal>
+      )}
+
+      {taskToDelete && (
+        <Modal title="Delete task?" onClose={() => !busyId && setTaskToDelete(null)}>
+          <div className="delete-confirmation">
+            <div className="delete-confirmation__icon" aria-hidden="true">!</div>
+            <p>
+              Delete <strong>{taskToDelete.title}</strong>? This action cannot be undone.
+            </p>
+            <div className="delete-confirmation__actions">
+              <button type="button" className="btn btn--secondary" onClick={() => setTaskToDelete(null)} disabled={Boolean(busyId)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn--danger" onClick={handleDelete} disabled={Boolean(busyId)}>
+                {busyId ? "Deleting..." : "Delete task"}
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
